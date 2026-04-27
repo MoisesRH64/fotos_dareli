@@ -760,7 +760,7 @@
       .tree-card {
         border-radius: 24px;
         padding: 14px;
-        background: linear-gradient(170deg, rgba(255, 255, 255, 0.9), rgba(255, 252, 245, 0.82));
+        background: linear-gradient(170deg, rgba(255, 255, 255, 0.92), rgba(252, 247, 236, 0.88));
         border: 1px solid rgba(255, 255, 255, 0.85);
         box-shadow: 0 18px 40px rgba(29, 26, 53, 0.2);
         display: grid;
@@ -769,9 +769,9 @@
 
       .life-tree-svg {
         width: 100%;
-        height: min(58vh, 500px);
+        height: min(68vh, 620px);
         border-radius: 16px;
-        background: radial-gradient(circle at 20% 20%, #fff8eb, #f7efe0 65%, #f2e6cf 100%);
+        background: linear-gradient(180deg, #f5f0df 0%, #efe6cf 72%, #e5d7b8 100%);
       }
 
       .tree-help {
@@ -783,51 +783,52 @@
       }
 
       .tree-trunk {
-        stroke: #6d4327;
-        stroke-width: 14;
+        fill: url(#trunkGrad);
+      }
+
+      .tree-canopy {
+        fill: url(#canopyGrad);
+      }
+
+      .tree-ground {
+        fill: #dac39a;
+      }
+
+      .tree-branch {
+        stroke: #7a5333;
+        stroke-width: 4.8;
         stroke-linecap: round;
         fill: none;
       }
 
-      .tree-branch {
-        stroke: #7f5534;
-        stroke-width: 6;
-        stroke-linecap: round;
-      }
-
-      .tree-twig {
-        stroke: #9c7049;
-        stroke-width: 2.5;
-        stroke-linecap: round;
-      }
-
-      .leaf-node {
-        fill: #fff;
-        stroke: #8b5e3b;
-        stroke-width: 2;
+      .branch-plate {
+        fill: #fffef7;
+        stroke: #8d6a47;
+        stroke-width: 1.6;
+        rx: 10;
         cursor: pointer;
-        transition: transform 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+        transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease;
       }
 
-      .leaf-node.passed {
-        fill: #ffe3c7;
+      .branch-plate.passed {
+        fill: #ffe7cc;
       }
 
-      .leaf-node.active {
-        fill: #ff5f87;
-        stroke: #ff5f87;
+      .branch-plate.active {
+        fill: #ff6f93;
+        stroke: #ff4f7f;
       }
 
-      .leaf-label {
+      .branch-label {
         fill: #3d2f4b;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 800;
         text-anchor: middle;
         dominant-baseline: middle;
         pointer-events: none;
       }
 
-      .leaf-label.active {
+      .branch-label.active {
         fill: #fff;
       }
 
@@ -1469,7 +1470,7 @@
         }
 
         .life-tree-svg {
-          height: min(44vh, 360px);
+          height: min(48vh, 420px);
         }
 
         .intro {
@@ -1729,8 +1730,8 @@ Te Amo 💕
       let touchStartX = 0;
       let touchStartY = 0;
       const photoElements = [];
-      const leafNodes = [];
-      const leafLabels = [];
+      const branchPlates = [];
+      const branchLabels = [];
 
       function createSvgElement(name, attrs = {}) {
         const el = document.createElementNS(NS, name);
@@ -1795,95 +1796,72 @@ Te Amo 💕
 
       function buildTree() {
         treeSvg.innerHTML = "";
-        treeSvg.setAttribute("viewBox", "0 0 480 520");
+        treeSvg.setAttribute("viewBox", "0 0 760 760");
 
-        const trunk = createSvgElement("path", {
-          d: "M240 485 L240 340",
-          class: "tree-trunk",
-        });
-        treeSvg.appendChild(trunk);
+        const defs = createSvgElement("defs");
+        const trunkGrad = createSvgElement("linearGradient", { id: "trunkGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%" });
+        trunkGrad.appendChild(createSvgElement("stop", { offset: "0%", "stop-color": "#9a6a43" }));
+        trunkGrad.appendChild(createSvgElement("stop", { offset: "100%", "stop-color": "#6a452a" }));
+        const canopyGrad = createSvgElement("radialGradient", { id: "canopyGrad", cx: "50%", cy: "35%", r: "70%" });
+        canopyGrad.appendChild(createSvgElement("stop", { offset: "0%", "stop-color": "#b8d88a" }));
+        canopyGrad.appendChild(createSvgElement("stop", { offset: "100%", "stop-color": "#7cab4f" }));
+        defs.appendChild(trunkGrad);
+        defs.appendChild(canopyGrad);
+        treeSvg.appendChild(defs);
 
-        const majorBranches = [
-          [240, 360, 170, 260],
-          [240, 360, 310, 260],
-          [240, 330, 130, 210],
-          [240, 330, 350, 210],
-          [240, 300, 200, 170],
-          [240, 300, 280, 170],
-        ];
+        treeSvg.appendChild(createSvgElement("ellipse", { cx: "380", cy: "230", rx: "300", ry: "180", class: "tree-canopy" }));
+        treeSvg.appendChild(createSvgElement("ellipse", { cx: "380", cy: "730", rx: "320", ry: "50", class: "tree-ground" }));
+        treeSvg.appendChild(
+          createSvgElement("path", {
+            d: "M340 705 C330 610 332 520 350 430 C360 390 365 360 380 338 C395 360 400 390 410 430 C428 520 430 610 420 705 Z",
+            class: "tree-trunk",
+          })
+        );
 
-        const anchors = [
-          { x: 170, y: 260 },
-          { x: 310, y: 260 },
-          { x: 130, y: 210 },
-          { x: 350, y: 210 },
-          { x: 200, y: 170 },
-          { x: 280, y: 170 },
-          { x: 240, y: 145 },
-        ];
+        const positions = [];
+        for (let row = 0; row < 8; row += 1) {
+          const y = 560 - row * 60;
+          positions.push({ x: 220 - row * 10, y: y - 8 });
+          positions.push({ x: 300 - row * 8, y: y - 30 });
+          positions.push({ x: 460 + row * 8, y: y - 30 });
+          positions.push({ x: 540 + row * 10, y: y - 8 });
+        }
 
-        majorBranches.forEach(([x1, y1, x2, y2]) => {
+        positions.slice(0, photos.length).forEach((pos, index) => {
+          const fromY = 640 - Math.floor(index / 4) * 28;
+          const controlX = pos.x < 380 ? pos.x + 70 : pos.x - 70;
+
           treeSvg.appendChild(
-            createSvgElement("line", {
-              x1,
-              y1,
-              x2,
-              y2,
+            createSvgElement("path", {
+              d: `M380 ${fromY} C 380 ${fromY - 70}, ${controlX} ${pos.y + 20}, ${pos.x} ${pos.y + 14}`,
               class: "tree-branch",
             })
           );
-        });
 
-        photos.forEach((_, index) => {
-          const angle = -165 + (index / Math.max(1, photos.length - 1)) * 150;
-          const radius = 145 + (index % 4) * 10;
-          const rad = (angle * Math.PI) / 180;
-          const cx = 240 + radius * Math.cos(rad);
-          const cy = 300 + radius * Math.sin(rad);
-
-          let nearest = anchors[0];
-          let minDist = Infinity;
-          anchors.forEach((anchor) => {
-            const dist = (anchor.x - cx) ** 2 + (anchor.y - cy) ** 2;
-            if (dist < minDist) {
-              minDist = dist;
-              nearest = anchor;
-            }
+          const plate = createSvgElement("rect", {
+            x: pos.x - 36,
+            y: pos.y,
+            width: 72,
+            height: 26,
+            class: "branch-plate",
           });
-
-          treeSvg.appendChild(
-            createSvgElement("line", {
-              x1: nearest.x,
-              y1: nearest.y,
-              x2: cx,
-              y2: cy,
-              class: "tree-twig",
-            })
-          );
-
-          const leaf = createSvgElement("circle", {
-            cx,
-            cy,
-            r: 12,
-            class: "leaf-node",
-          });
-          leaf.addEventListener("click", () => {
+          const yearValue = Math.round((index / Math.max(1, photos.length - 1)) * 25);
+          plate.dataset.year = `${yearValue}`;
+          plate.addEventListener("click", () => {
             showPhoto(index);
             startCarousel();
           });
-          treeSvg.appendChild(leaf);
-          leafNodes.push(leaf);
+          treeSvg.appendChild(plate);
+          branchPlates.push(plate);
 
-          const yearValue = Math.round((index / Math.max(1, photos.length - 1)) * 25);
           const label = createSvgElement("text", {
-            x: cx,
-            y: cy + 1,
-            class: "leaf-label",
+            x: pos.x,
+            y: pos.y + 14,
+            class: "branch-label",
           });
           label.textContent = `${yearValue}`;
           treeSvg.appendChild(label);
-          leafLabels.push(label);
-          leaf.dataset.year = `${yearValue}`;
+          branchLabels.push(label);
         });
       }
 
@@ -1903,13 +1881,13 @@ Te Amo 💕
         current = index;
         photoElements.forEach((img, i) => img.classList.toggle("active", i === index));
 
-        leafNodes.forEach((leaf, i) => {
-          leaf.classList.toggle("active", i === index);
-          leaf.classList.toggle("passed", i < index);
-          leafLabels[i].classList.toggle("active", i === index);
+        branchPlates.forEach((plate, i) => {
+          plate.classList.toggle("active", i === index);
+          plate.classList.toggle("passed", i < index);
+          branchLabels[i].classList.toggle("active", i === index);
         });
 
-        const yearValue = leafNodes[index]?.dataset.year || "0";
+        const yearValue = branchPlates[index]?.dataset.year || "0";
         lifeYear.textContent = `Ano ${yearValue}`;
         caption.textContent = `Ano ${yearValue}: ${photos[index].text}`;
         slideCount.textContent = `${index + 1} / ${photos.length}`;
