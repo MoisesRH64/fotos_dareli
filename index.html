@@ -880,6 +880,98 @@
         transition: width 0.45s ease;
       }
 
+      .tree-track {
+        position: relative;
+        border-radius: 16px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.66);
+      }
+
+      .tree-grid {
+        position: relative;
+        max-height: 290px;
+        overflow: auto;
+        padding: 4px 2px;
+      }
+
+      .tree-grid::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        transform: translateX(-50%);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #875f3b, #6d4327);
+        opacity: 0.9;
+      }
+
+      .branch-row {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 64px 1fr;
+        align-items: center;
+        min-height: 44px;
+        z-index: 1;
+      }
+
+      .branch-row::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        height: 3px;
+        background: #875f3b;
+        border-radius: 999px;
+      }
+
+      .branch-row.left::after {
+        left: calc(50% - 32px);
+        width: 32px;
+        transform: translateY(-50%);
+      }
+
+      .branch-row.right::after {
+        left: 50%;
+        width: 32px;
+        transform: translateY(-50%);
+      }
+
+      .branch-node {
+        border: 0;
+        border-radius: 999px;
+        padding: 8px 12px;
+        min-width: 110px;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: #3a2f46;
+        background: #fff;
+        cursor: pointer;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .branch-row.left .branch-node {
+        grid-column: 1;
+        justify-self: end;
+      }
+
+      .branch-row.right .branch-node {
+        grid-column: 3;
+        justify-self: start;
+      }
+
+      .branch-node.passed {
+        background: #ffe9d6;
+      }
+
+      .branch-node.active {
+        background: linear-gradient(130deg, #ff5f87, #ff9068);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(255, 95, 135, 0.36);
+      }
+
       .timeline-track {
         position: relative;
         padding: 10px 2px;
@@ -1305,6 +1397,29 @@
           border-left: 0;
         }
 
+        .tree-grid {
+          max-height: 240px;
+        }
+
+        .branch-row {
+          grid-template-columns: 1fr 46px 1fr;
+        }
+
+        .branch-row.left::after,
+        .branch-row.right::after {
+          width: 24px;
+        }
+
+        .branch-row.left::after {
+          left: calc(50% - 24px);
+        }
+
+        .branch-node {
+          min-width: 92px;
+          padding: 7px 10px;
+          font-size: 0.76rem;
+        }
+
         .dots {
           gap: 7px;
           padding-bottom: 3px;
@@ -1418,7 +1533,7 @@
 
         <div class="gallery-card">
           <div class="gallery-head">
-            <p class="gallery-title">Linea de tiempo de recuerdos</p>
+            <p class="gallery-title">Arbol de vida de recuerdos</p>
             <p class="slide-count" id="slideCount">1 / 32</p>
           </div>
 
@@ -1434,16 +1549,12 @@
             <button class="always-nav-btn" id="prevAlways" type="button">← Anterior</button>
             <button class="always-nav-btn" id="nextAlways" type="button">Siguiente →</button>
           </div>
-          <div class="primary-controls">
-            <button class="primary-nav-btn" id="prevPrimary" type="button">← Momento anterior</button>
-            <button class="primary-nav-btn" id="nextPrimary" type="button">Momento siguiente →</button>
-          </div>
           <div class="timeline-meta">
-            <span>Inicio</span>
+            <span>Raices</span>
             <p class="life-year" id="lifeYear">Ano 0</p>
-            <span>25 anos</span>
+            <span>Hoy</span>
           </div>
-          <div class="timeline-track"><div class="dots" id="dots"></div></div>
+          <div class="tree-track"><div class="tree-grid" id="treeGrid"></div></div>
         </div>
 
         <button class="dedication-btn" id="openDedication" type="button">Ver dedicatoria</button>
@@ -1483,7 +1594,7 @@ Te Amo 💕
       const intro = document.getElementById("intro");
       const frame = document.getElementById("photoFrame");
       const caption = document.getElementById("caption");
-      const dots = document.getElementById("dots");
+      const treeGrid = document.getElementById("treeGrid");
       const musicBtn = document.getElementById("musicBtn");
       const musicStatus = document.getElementById("musicStatus");
       const enterIntro = document.getElementById("enterIntro");
@@ -1494,8 +1605,6 @@ Te Amo 💕
       const nextBtn = document.getElementById("nextBtn");
       const prevAlways = document.getElementById("prevAlways");
       const nextAlways = document.getElementById("nextAlways");
-      const prevPrimary = document.getElementById("prevPrimary");
-      const nextPrimary = document.getElementById("nextPrimary");
       const dedicationModal = document.getElementById("dedicationModal");
       const openDedication = document.getElementById("openDedication");
       const closeDedication = document.getElementById("closeDedication");
@@ -1516,7 +1625,7 @@ Te Amo 💕
       let touchEndX = 0;
       let touchStartY = 0;
       const photoElements = [];
-      const dotElements = [];
+      const branchElements = [];
 
       function initYouTubeApi() {
         const script = document.createElement("script");
@@ -1582,16 +1691,21 @@ Te Amo 💕
           frame.appendChild(img);
           photoElements.push(img);
 
-          const dot = document.createElement("button");
-          dot.className = "dot";
-          dot.type = "button";
           const yearValue = Math.round((index / Math.max(1, photos.length - 1)) * 25);
-          dot.textContent = `${yearValue}`;
-          dot.dataset.year = `${yearValue}`;
-          dot.setAttribute("aria-label", `Ver foto ${index + 1}`);
-          dot.addEventListener("click", () => showPhoto(index));
-          dots.appendChild(dot);
-          dotElements.push(dot);
+          const row = document.createElement("div");
+          row.className = `branch-row ${index % 2 === 0 ? "left" : "right"}`;
+
+          const branch = document.createElement("button");
+          branch.className = "branch-node";
+          branch.type = "button";
+          branch.textContent = `Ano ${yearValue}`;
+          branch.dataset.year = `${yearValue}`;
+          branch.setAttribute("aria-label", `Seleccionar rama ${index + 1}`);
+          branch.addEventListener("click", () => showPhoto(index));
+
+          row.appendChild(branch);
+          treeGrid.appendChild(row);
+          branchElements.push(branch);
         });
 
         showPhoto(0);
@@ -1600,16 +1714,16 @@ Te Amo 💕
       function showPhoto(index) {
         current = index;
         photoElements.forEach((img, i) => img.classList.toggle("active", i === index));
-        dotElements.forEach((dot, i) => {
-          dot.classList.toggle("active", i === index);
-          dot.classList.toggle("passed", i < index);
+        branchElements.forEach((branch, i) => {
+          branch.classList.toggle("active", i === index);
+          branch.classList.toggle("passed", i < index);
         });
-        const yearValue = dotElements[index]?.dataset.year || "0";
+        const yearValue = branchElements[index]?.dataset.year || "0";
         lifeYear.textContent = `Ano ${yearValue}`;
         caption.textContent = `Ano ${yearValue}: ${photos[index].text}`;
         slideCount.textContent = `${index + 1} / ${photos.length}`;
         progressBar.style.width = `${((index + 1) / photos.length) * 100}%`;
-        dotElements[index]?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+        branchElements[index]?.parentElement?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
 
       function nextPhoto() {
@@ -1660,16 +1774,6 @@ Te Amo 💕
       });
 
       nextAlways.addEventListener("click", () => {
-        nextPhoto();
-        startCarousel();
-      });
-
-      prevPrimary.addEventListener("click", () => {
-        prevPhoto();
-        startCarousel();
-      });
-
-      nextPrimary.addEventListener("click", () => {
         nextPhoto();
         startCarousel();
       });
