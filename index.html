@@ -799,10 +799,29 @@
         overflow: hidden;
         box-shadow: var(--shadow);
         background: linear-gradient(130deg, #191725, #2a213b);
-        touch-action: none;
+        touch-action: pan-y;
         user-select: none;
         -webkit-user-select: none;
         -webkit-touch-callout: none;
+      }
+
+      .frame-tap-zone {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        border: 0;
+        background: transparent;
+        z-index: 5;
+        cursor: pointer;
+      }
+
+      .frame-tap-zone.prev {
+        left: 0;
+      }
+
+      .frame-tap-zone.next {
+        right: 0;
       }
 
       .photo {
@@ -1346,6 +1365,29 @@ Te Amo 💕
       const photoElements = [];
       const dotElements = [];
 
+      function mountTapZones() {
+        const prevZone = document.createElement("button");
+        prevZone.type = "button";
+        prevZone.className = "frame-tap-zone prev";
+        prevZone.setAttribute("aria-label", "Foto anterior");
+        prevZone.addEventListener("click", () => {
+          prevPhoto();
+          startCarousel();
+        });
+
+        const nextZone = document.createElement("button");
+        nextZone.type = "button";
+        nextZone.className = "frame-tap-zone next";
+        nextZone.setAttribute("aria-label", "Foto siguiente");
+        nextZone.addEventListener("click", () => {
+          nextPhoto();
+          startCarousel();
+        });
+
+        frame.appendChild(prevZone);
+        frame.appendChild(nextZone);
+      }
+
       function initYouTubeApi() {
         const script = document.createElement("script");
         script.src = "https://www.youtube.com/iframe_api";
@@ -1419,6 +1461,7 @@ Te Amo 💕
           dotElements.push(dot);
         });
 
+        mountTapZones();
         showPhoto(0);
       }
 
@@ -1543,6 +1586,23 @@ Te Amo 💕
         }
 
         startCarousel();
+      });
+
+      frame.addEventListener("click", (event) => {
+        if (event.target.classList.contains("frame-tap-zone")) {
+          return;
+        }
+
+        const rect = frame.getBoundingClientRect();
+        const ratio = (event.clientX - rect.left) / rect.width;
+
+        if (ratio < 0.45) {
+          prevPhoto();
+          startCarousel();
+        } else if (ratio > 0.55) {
+          nextPhoto();
+          startCarousel();
+        }
       });
 
       enterIntro.addEventListener("click", () => {
