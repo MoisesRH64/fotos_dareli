@@ -1138,8 +1138,33 @@
           border-width: 12px;
         }
 
+        .intro {
+          padding: 12px;
+          gap: 10px;
+        }
+
+        .gallery-card {
+          width: min(96vw, 520px);
+          border-radius: 18px;
+          padding: 10px;
+          gap: 8px;
+        }
+
         .gallery {
           grid-template-columns: 1fr;
+        }
+
+        .photo-frame {
+          aspect-ratio: 4 / 5;
+        }
+
+        .caption {
+          font-size: 0.95rem;
+        }
+
+        .dots {
+          gap: 7px;
+          flex-wrap: wrap;
         }
 
         .carousel-nav {
@@ -1218,8 +1243,6 @@
           <div class="dots" id="dots"></div>
         </div>
 
-        <p class="hint">Se cargaron automaticamente las fotos de la carpeta imagenes.</p>
-        <p class="hint">Si no suena automatico, usa el boton Activar musica.</p>
         <button class="dedication-btn" id="openDedication" type="button">Ver dedicatoria</button>
       </section>
     </main>
@@ -1240,7 +1263,7 @@
       class="yt-player"
       title="Musica de fondo"
       allow="autoplay; encrypted-media"
-      src="https://www.youtube.com/embed?listType=search&list=your+song+saved+my+life&autoplay=1&loop=1&controls=0&mute=1"
+      src="https://www.youtube.com/embed/7KuGie4eWgQ?autoplay=1&loop=1&playlist=7KuGie4eWgQ&controls=0&mute=1&playsinline=1"
     ></iframe>
 
     <div class="modal" id="dedicationModal" role="dialog" aria-modal="true" aria-labelledby="dedicationTitle">
@@ -1350,7 +1373,7 @@ Te Amo 💕
       // Most browsers block autoplay with audio, so this button reloads player with unmuted sound.
       musicBtn.addEventListener("click", () => {
         player.src =
-          "https://www.youtube.com/embed?listType=search&list=your+song+saved+my+life&autoplay=1&loop=1&controls=1&mute=0";
+          "https://www.youtube.com/embed/7KuGie4eWgQ?autoplay=1&loop=1&playlist=7KuGie4eWgQ&controls=1&mute=0&playsinline=1";
         musicBtn.textContent = "Musica activada";
         musicBtn.disabled = true;
       });
