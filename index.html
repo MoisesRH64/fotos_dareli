@@ -892,6 +892,23 @@
         gap: 9px;
       }
 
+      .mobile-controls {
+        display: none;
+      }
+
+      .mobile-nav-btn {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(130deg, #ff5f87, #ff9068);
+        box-shadow: 0 8px 14px rgba(255, 95, 135, 0.25);
+        cursor: pointer;
+      }
+
       .dot {
         width: 10px;
         height: 10px;
@@ -1198,7 +1215,10 @@
 
         .dots {
           gap: 7px;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 3px;
         }
 
         .carousel-nav {
@@ -1220,6 +1240,12 @@
 
         #nextBtn {
           right: 8px;
+        }
+
+        .mobile-controls {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
         }
 
         .scene-text {
@@ -1292,6 +1318,10 @@
 
           <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
           <p class="caption" id="caption"></p>
+          <div class="mobile-controls">
+            <button class="mobile-nav-btn" id="prevBtnMobile" type="button">Anterior</button>
+            <button class="mobile-nav-btn" id="nextBtnMobile" type="button">Siguiente</button>
+          </div>
           <div class="dots" id="dots"></div>
         </div>
 
@@ -1340,6 +1370,8 @@ Te Amo 💕
       const progressBar = document.getElementById("progressBar");
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
+      const prevBtnMobile = document.getElementById("prevBtnMobile");
+      const nextBtnMobile = document.getElementById("nextBtnMobile");
       const dedicationModal = document.getElementById("dedicationModal");
       const openDedication = document.getElementById("openDedication");
       const closeDedication = document.getElementById("closeDedication");
@@ -1513,6 +1545,16 @@ Te Amo 💕
 
       prevBtn.addEventListener("click", () => {
         prevPhoto();
+        startCarousel();
+      });
+
+      prevBtnMobile.addEventListener("click", () => {
+        prevPhoto();
+        startCarousel();
+      });
+
+      nextBtnMobile.addEventListener("click", () => {
+        nextPhoto();
         startCarousel();
       });
 
