@@ -799,6 +799,7 @@
         overflow: hidden;
         box-shadow: var(--shadow);
         background: linear-gradient(130deg, #191725, #2a213b);
+        touch-action: pan-y;
       }
 
       .photo {
@@ -1161,6 +1162,7 @@
 
         .gallery {
           grid-template-columns: 1fr;
+          position: relative;
         }
 
         .photo-frame {
@@ -1177,7 +1179,24 @@
         }
 
         .carousel-nav {
-          display: none;
+          display: grid;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 38px;
+          height: 38px;
+          z-index: 6;
+          background: rgba(32, 27, 59, 0.72);
+          box-shadow: none;
+          font-size: 1.35rem;
+        }
+
+        #prevBtn {
+          left: 8px;
+        }
+
+        #nextBtn {
+          right: 8px;
         }
 
         .scene-text {
@@ -1314,6 +1333,8 @@ Te Amo 💕
       let ytPlayer;
       let ytReady = false;
       let userRequestedMusic = false;
+      let touchStartX = 0;
+      let touchEndX = 0;
       const photoElements = [];
       const dotElements = [];
 
@@ -1443,6 +1464,35 @@ Te Amo 💕
         prevPhoto();
         startCarousel();
       });
+
+      frame.addEventListener(
+        "touchstart",
+        (event) => {
+          touchStartX = event.changedTouches[0].clientX;
+        },
+        { passive: true }
+      );
+
+      frame.addEventListener(
+        "touchend",
+        (event) => {
+          touchEndX = event.changedTouches[0].clientX;
+          const deltaX = touchEndX - touchStartX;
+
+          if (Math.abs(deltaX) < 40) {
+            return;
+          }
+
+          if (deltaX < 0) {
+            nextPhoto();
+          } else {
+            prevPhoto();
+          }
+
+          startCarousel();
+        },
+        { passive: true }
+      );
 
       enterIntro.addEventListener("click", () => {
         openMainIntro();
