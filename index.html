@@ -749,6 +749,99 @@
         max-width: 62ch;
       }
 
+      .life-layout {
+        width: min(95vw, 1100px);
+        display: grid;
+        grid-template-columns: minmax(280px, 430px) 1fr;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .tree-card {
+        border-radius: 24px;
+        padding: 14px;
+        background: linear-gradient(170deg, rgba(255, 255, 255, 0.9), rgba(255, 252, 245, 0.82));
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 18px 40px rgba(29, 26, 53, 0.2);
+        display: grid;
+        gap: 8px;
+      }
+
+      .life-tree-svg {
+        width: 100%;
+        height: min(58vh, 500px);
+        border-radius: 16px;
+        background: radial-gradient(circle at 20% 20%, #fff8eb, #f7efe0 65%, #f2e6cf 100%);
+      }
+
+      .tree-help {
+        margin: 0;
+        text-align: center;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: rgba(47, 38, 69, 0.72);
+      }
+
+      .tree-trunk {
+        stroke: #6d4327;
+        stroke-width: 14;
+        stroke-linecap: round;
+        fill: none;
+      }
+
+      .tree-branch {
+        stroke: #7f5534;
+        stroke-width: 6;
+        stroke-linecap: round;
+      }
+
+      .tree-twig {
+        stroke: #9c7049;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+      }
+
+      .leaf-node {
+        fill: #fff;
+        stroke: #8b5e3b;
+        stroke-width: 2;
+        cursor: pointer;
+        transition: transform 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+      }
+
+      .leaf-node.passed {
+        fill: #ffe3c7;
+      }
+
+      .leaf-node.active {
+        fill: #ff5f87;
+        stroke: #ff5f87;
+      }
+
+      .leaf-label {
+        fill: #3d2f4b;
+        font-size: 10px;
+        font-weight: 800;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        pointer-events: none;
+      }
+
+      .leaf-label.active {
+        fill: #fff;
+      }
+
+      .memory-card {
+        border-radius: 24px;
+        padding: clamp(12px, 2.4vw, 18px);
+        background: linear-gradient(170deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+        border: 1px solid rgba(255, 255, 255, 0.82);
+        box-shadow: 0 18px 42px rgba(29, 26, 53, 0.2);
+        display: grid;
+        gap: 12px;
+        backdrop-filter: blur(8px);
+      }
+
       .gallery-card {
         width: min(94vw, 980px);
         background: linear-gradient(170deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
@@ -1370,6 +1463,15 @@
           border-width: 12px;
         }
 
+        .life-layout {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .life-tree-svg {
+          height: min(44vh, 360px);
+        }
+
         .intro {
           padding: 12px;
           gap: 10px;
@@ -1525,36 +1627,38 @@
 
       <section class="intro" id="intro" aria-live="polite">
         <div class="intro-copy">
-          <h2>Nuestra linea de tiempo</h2>
+          <h2>Nuestro arbol de vida</h2>
           <p>
-            Una linea de vida a lo largo de los anos: desde los primeros recuerdos hasta celebrar los 25.
+            Cada rama representa una etapa importante. Toca una hoja para abrir ese recuerdo.
           </p>
         </div>
 
-        <div class="gallery-card">
-          <div class="gallery-head">
-            <p class="gallery-title">Arbol de vida de recuerdos</p>
-            <p class="slide-count" id="slideCount">1 / 32</p>
+        <div class="life-layout">
+          <div class="tree-card">
+            <svg id="treeSvg" class="life-tree-svg" role="img" aria-label="Arbol de vida interactivo"></svg>
+            <p class="tree-help">Toca una hoja para ir a ese momento</p>
           </div>
 
-          <div class="gallery">
-            <button class="carousel-nav" id="prevBtn" type="button" aria-label="Foto anterior">‹</button>
-            <div class="photo-frame" id="photoFrame"></div>
-            <button class="carousel-nav" id="nextBtn" type="button" aria-label="Foto siguiente">›</button>
-          </div>
-
-          <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
-          <p class="caption" id="caption"></p>
-          <div class="always-controls">
-            <button class="always-nav-btn" id="prevAlways" type="button">← Anterior</button>
-            <button class="always-nav-btn" id="nextAlways" type="button">Siguiente →</button>
-          </div>
-          <div class="timeline-meta">
-            <span>Raices</span>
+          <div class="memory-card">
+            <div class="gallery-head">
+              <p class="gallery-title">Recuerdo activo</p>
+              <p class="slide-count" id="slideCount">1 / 32</p>
+            </div>
             <p class="life-year" id="lifeYear">Ano 0</p>
-            <span>Hoy</span>
+
+            <div class="gallery">
+              <button class="carousel-nav" id="prevBtn" type="button" aria-label="Foto anterior">‹</button>
+              <div class="photo-frame" id="photoFrame"></div>
+              <button class="carousel-nav" id="nextBtn" type="button" aria-label="Foto siguiente">›</button>
+            </div>
+
+            <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+            <p class="caption" id="caption"></p>
+            <div class="always-controls">
+              <button class="always-nav-btn" id="prevAlways" type="button">← Anterior</button>
+              <button class="always-nav-btn" id="nextAlways" type="button">Siguiente →</button>
+            </div>
           </div>
-          <div class="tree-track"><div class="tree-grid" id="treeGrid"></div></div>
         </div>
 
         <button class="dedication-btn" id="openDedication" type="button">Ver dedicatoria</button>
@@ -1590,11 +1694,13 @@ Te Amo 💕
     </div>
 
     <script>
+      const NS = "http://www.w3.org/2000/svg";
+
       const scene = document.getElementById("scene");
       const intro = document.getElementById("intro");
       const frame = document.getElementById("photoFrame");
+      const treeSvg = document.getElementById("treeSvg");
       const caption = document.getElementById("caption");
-      const treeGrid = document.getElementById("treeGrid");
       const musicBtn = document.getElementById("musicBtn");
       const musicStatus = document.getElementById("musicStatus");
       const enterIntro = document.getElementById("enterIntro");
@@ -1610,8 +1716,7 @@ Te Amo 💕
       const closeDedication = document.getElementById("closeDedication");
 
       const fileNames = Array.from({ length: 32 }, (_, i) => `${i + 1}.jpeg`);
-
-      const photos = fileNames.map((name, i) => ({
+      const photos = fileNames.map((name) => ({
         src: `imagenes/${encodeURIComponent(name)}`,
         text: "Feliz cumpleaños",
       }));
@@ -1622,10 +1727,18 @@ Te Amo 💕
       let ytReady = false;
       let userRequestedMusic = false;
       let touchStartX = 0;
-      let touchEndX = 0;
       let touchStartY = 0;
       const photoElements = [];
-      const branchElements = [];
+      const leafNodes = [];
+      const leafLabels = [];
+
+      function createSvgElement(name, attrs = {}) {
+        const el = document.createElementNS(NS, name);
+        Object.entries(attrs).forEach(([key, value]) => {
+          el.setAttribute(key, value);
+        });
+        return el;
+      }
 
       function initYouTubeApi() {
         const script = document.createElement("script");
@@ -1673,12 +1786,105 @@ Te Amo 💕
           musicStatus.textContent = "Cargando reproductor...";
           return;
         }
-
         ytPlayer.unMute();
         ytPlayer.setVolume(80);
         ytPlayer.playVideo();
         musicBtn.textContent = "Reproduciendo";
         musicStatus.textContent = "Musica reproduciendose.";
+      }
+
+      function buildTree() {
+        treeSvg.innerHTML = "";
+        treeSvg.setAttribute("viewBox", "0 0 480 520");
+
+        const trunk = createSvgElement("path", {
+          d: "M240 485 L240 340",
+          class: "tree-trunk",
+        });
+        treeSvg.appendChild(trunk);
+
+        const majorBranches = [
+          [240, 360, 170, 260],
+          [240, 360, 310, 260],
+          [240, 330, 130, 210],
+          [240, 330, 350, 210],
+          [240, 300, 200, 170],
+          [240, 300, 280, 170],
+        ];
+
+        const anchors = [
+          { x: 170, y: 260 },
+          { x: 310, y: 260 },
+          { x: 130, y: 210 },
+          { x: 350, y: 210 },
+          { x: 200, y: 170 },
+          { x: 280, y: 170 },
+          { x: 240, y: 145 },
+        ];
+
+        majorBranches.forEach(([x1, y1, x2, y2]) => {
+          treeSvg.appendChild(
+            createSvgElement("line", {
+              x1,
+              y1,
+              x2,
+              y2,
+              class: "tree-branch",
+            })
+          );
+        });
+
+        photos.forEach((_, index) => {
+          const angle = -165 + (index / Math.max(1, photos.length - 1)) * 150;
+          const radius = 145 + (index % 4) * 10;
+          const rad = (angle * Math.PI) / 180;
+          const cx = 240 + radius * Math.cos(rad);
+          const cy = 300 + radius * Math.sin(rad);
+
+          let nearest = anchors[0];
+          let minDist = Infinity;
+          anchors.forEach((anchor) => {
+            const dist = (anchor.x - cx) ** 2 + (anchor.y - cy) ** 2;
+            if (dist < minDist) {
+              minDist = dist;
+              nearest = anchor;
+            }
+          });
+
+          treeSvg.appendChild(
+            createSvgElement("line", {
+              x1: nearest.x,
+              y1: nearest.y,
+              x2: cx,
+              y2: cy,
+              class: "tree-twig",
+            })
+          );
+
+          const leaf = createSvgElement("circle", {
+            cx,
+            cy,
+            r: 12,
+            class: "leaf-node",
+          });
+          leaf.addEventListener("click", () => {
+            showPhoto(index);
+            startCarousel();
+          });
+          treeSvg.appendChild(leaf);
+          leafNodes.push(leaf);
+
+          const yearValue = Math.round((index / Math.max(1, photos.length - 1)) * 25);
+          const label = createSvgElement("text", {
+            x: cx,
+            y: cy + 1,
+            class: "leaf-label",
+          });
+          label.textContent = `${yearValue}`;
+          treeSvg.appendChild(label);
+          leafLabels.push(label);
+          leaf.dataset.year = `${yearValue}`;
+        });
       }
 
       function buildGallery() {
@@ -1690,40 +1896,24 @@ Te Amo 💕
           img.loading = index < 4 ? "eager" : "lazy";
           frame.appendChild(img);
           photoElements.push(img);
-
-          const yearValue = Math.round((index / Math.max(1, photos.length - 1)) * 25);
-          const row = document.createElement("div");
-          row.className = `branch-row ${index % 2 === 0 ? "left" : "right"}`;
-
-          const branch = document.createElement("button");
-          branch.className = "branch-node";
-          branch.type = "button";
-          branch.textContent = `Ano ${yearValue}`;
-          branch.dataset.year = `${yearValue}`;
-          branch.setAttribute("aria-label", `Seleccionar rama ${index + 1}`);
-          branch.addEventListener("click", () => showPhoto(index));
-
-          row.appendChild(branch);
-          treeGrid.appendChild(row);
-          branchElements.push(branch);
         });
-
-        showPhoto(0);
       }
 
       function showPhoto(index) {
         current = index;
         photoElements.forEach((img, i) => img.classList.toggle("active", i === index));
-        branchElements.forEach((branch, i) => {
-          branch.classList.toggle("active", i === index);
-          branch.classList.toggle("passed", i < index);
+
+        leafNodes.forEach((leaf, i) => {
+          leaf.classList.toggle("active", i === index);
+          leaf.classList.toggle("passed", i < index);
+          leafLabels[i].classList.toggle("active", i === index);
         });
-        const yearValue = branchElements[index]?.dataset.year || "0";
+
+        const yearValue = leafNodes[index]?.dataset.year || "0";
         lifeYear.textContent = `Ano ${yearValue}`;
         caption.textContent = `Ano ${yearValue}: ${photos[index].text}`;
         slideCount.textContent = `${index + 1} / ${photos.length}`;
         progressBar.style.width = `${((index + 1) / photos.length) * 100}%`;
-        branchElements[index]?.parentElement?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
 
       function nextPhoto() {
@@ -1738,7 +1928,7 @@ Te Amo 💕
         clearInterval(carouselTimer);
         carouselTimer = setInterval(() => {
           nextPhoto();
-        }, 3800);
+        }, 4000);
       }
 
       function openMainIntro() {
@@ -1784,30 +1974,16 @@ Te Amo 💕
           touchStartX = event.changedTouches[0].clientX;
           touchStartY = event.changedTouches[0].clientY;
         },
-        { passive: false }
-      );
-
-      frame.addEventListener(
-        "touchmove",
-        (event) => {
-          const dx = event.changedTouches[0].clientX - touchStartX;
-          const dy = event.changedTouches[0].clientY - touchStartY;
-
-          // Prevent native gesture interference when user is swiping horizontally.
-          if (Math.abs(dx) > Math.abs(dy)) {
-            event.preventDefault();
-          }
-        },
-        { passive: false }
+        { passive: true }
       );
 
       frame.addEventListener(
         "touchend",
         (event) => {
-          touchEndX = event.changedTouches[0].clientX;
-          const deltaX = touchEndX - touchStartX;
+          const deltaX = event.changedTouches[0].clientX - touchStartX;
+          const deltaY = event.changedTouches[0].clientY - touchStartY;
 
-          if (Math.abs(deltaX) < 40) {
+          if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY)) {
             return;
           }
 
@@ -1819,7 +1995,7 @@ Te Amo 💕
 
           startCarousel();
         },
-        { passive: false }
+        { passive: true }
       );
 
       frame.addEventListener("click", (event) => {
@@ -1861,6 +2037,8 @@ Te Amo 💕
 
       initYouTubeApi();
       buildGallery();
+      buildTree();
+      showPhoto(0);
       startCarousel();
     </script>
   </body>
