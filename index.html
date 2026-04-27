@@ -799,7 +799,10 @@
         overflow: hidden;
         box-shadow: var(--shadow);
         background: linear-gradient(130deg, #191725, #2a213b);
-        touch-action: pan-y;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
       }
 
       .photo {
@@ -812,6 +815,7 @@
         opacity: 0;
         transform: scale(1.04);
         transition: opacity 0.7s ease, transform 5.8s linear;
+        pointer-events: none;
       }
 
       .photo.active {
@@ -1183,12 +1187,12 @@
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
+          width: 44px;
+          height: 44px;
           z-index: 6;
-          background: rgba(32, 27, 59, 0.72);
+          background: rgba(32, 27, 59, 0.82);
           box-shadow: none;
-          font-size: 1.35rem;
+          font-size: 1.45rem;
         }
 
         #prevBtn {
@@ -1335,6 +1339,10 @@ Te Amo 💕
       let userRequestedMusic = false;
       let touchStartX = 0;
       let touchEndX = 0;
+      let touchStartY = 0;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let isPointerDown = false;
       const photoElements = [];
       const dotElements = [];
 
@@ -1469,8 +1477,23 @@ Te Amo 💕
         "touchstart",
         (event) => {
           touchStartX = event.changedTouches[0].clientX;
+          touchStartY = event.changedTouches[0].clientY;
         },
-        { passive: true }
+        { passive: false }
+      );
+
+      frame.addEventListener(
+        "touchmove",
+        (event) => {
+          const dx = event.changedTouches[0].clientX - touchStartX;
+          const dy = event.changedTouches[0].clientY - touchStartY;
+
+          // Prevent native gesture interference when user is swiping horizontally.
+          if (Math.abs(dx) > Math.abs(dy)) {
+            event.preventDefault();
+          }
+        },
+        { passive: false }
       );
 
       frame.addEventListener(
@@ -1491,8 +1514,36 @@ Te Amo 💕
 
           startCarousel();
         },
-        { passive: true }
+        { passive: false }
       );
+
+      frame.addEventListener("pointerdown", (event) => {
+        isPointerDown = true;
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+      });
+
+      frame.addEventListener("pointerup", (event) => {
+        if (!isPointerDown) {
+          return;
+        }
+
+        isPointerDown = false;
+        const deltaX = event.clientX - pointerStartX;
+        const deltaY = event.clientY - pointerStartY;
+
+        if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) {
+          return;
+        }
+
+        if (deltaX < 0) {
+          nextPhoto();
+        } else {
+          prevPhoto();
+        }
+
+        startCarousel();
+      });
 
       enterIntro.addEventListener("click", () => {
         openMainIntro();
