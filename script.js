@@ -23,40 +23,134 @@ const photos = Array.from({ length: IMAGE_COUNT }, (_, i) => ({
 }));
 
 let activeNode = null;
-let musicAttempts = 0;
+let ytPlayer = null;
+let ytReady = false;
+let pendingUserPlay = false;
+let apiLoadStarted = false;
+let lastPlayToken = 0;
 
-function triggerMusic() {
-  musicAttempts += 1;
+function loadYouTubeApi() {
+  if (apiLoadStarted) {
+    return;
+  }
 
-  const params = new URLSearchParams({
-    autoplay: "1",
-    controls: "0",
-    loop: "1",
-    playlist: SONG_VIDEO_ID,
-    rel: "0",
-    modestbranding: "1",
-    playsinline: "1",
-    iv_load_policy: "3",
-    disablekb: "1",
-    fs: "0",
-  });
+  apiLoadStarted = true;
+  const script = document.createElement("script");
+  script.src = "https://www.youtube.com/iframe_api";
+  script.async = true;
+  script.onerror = () => {
+    musicStatus.textContent = "No se pudo cargar YouTube. Revisa conexion e intenta de nuevo.";
+  };
+  document.head.appendChild(script);
+}
 
-  const iframe = document.createElement("iframe");
-  iframe.width = "1";
-  iframe.height = "1";
-  iframe.title = "Reproductor de audio";
-  iframe.allow = "autoplay; encrypted-media";
-  iframe.referrerPolicy = "strict-origin-when-cross-origin";
-  iframe.src = `https://www.youtube-nocookie.com/embed/${SONG_VIDEO_ID}?${params.toString()}&retry=${musicAttempts}`;
+function startPlaybackVerified() {
+  if (!ytPlayer || !ytReady) {
+    return;
+  }
 
-  ytPlayerHost.innerHTML = "";
-  ytPlayerHost.appendChild(iframe);
+  lastPlayToken += 1;
+  const currentToken = lastPlayToken;
+  musicStatus.textContent = "Iniciando cancion...";
 
-  musicStatus.textContent = "Cancion reproduciendose.";
-  if (musicAttempts > 1) {
-    musicStatus.textContent = "Cancion activada.";
+  try {
+    ytPlayer.stopVideo();
+    ytPlayer.unMute();
+    ytPlayer.setVolume(100);
+    ytPlayer.playVideo();
+  } catch {
+    musicStatus.textContent = "No se pudo iniciar. Presiona Activar cancion otra vez.";
+    return;
+  }
+
+  setTimeout(() => {
+    if (currentToken !== lastPlayToken) {
+      return;
+    }
+
+    const state = ytPlayer.getPlayerState();
+    if (state !== YT.PlayerState.PLAYING) {
+      musicStatus.textContent = "Reproduccion bloqueada por el navegador. Presiona Activar cancion.";
+    }
+  }, 1100);
+}
+
+function ensureAudiblePlayback() {
+  if (!ytPlayer || !ytReady) {
+    return;
+  }
+
+  try {
+    if (ytPlayer.isMuted()) {
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+
+      setTimeout(() => {
+        if (ytPlayer.isMuted()) {
+          musicStatus.textContent = "El navegador mantiene el audio en silencio. Presiona Activar cancion nuevamente.";
+        } else {
+          musicStatus.textContent = "Cancion reproduciendose.";
+        }
+      }, 500);
+    } else {
+      musicStatus.textContent = "Cancion reproduciendose.";
+    }
+  } catch {
+    musicStatus.textContent = "No se pudo confirmar audio. Presiona Activar cancion.";
   }
 }
+
+function triggerMusic() {
+  pendingUserPlay = true;
+  musicStatus.textContent = "Preparando cancion...";
+
+  if (ytReady && ytPlayer) {
+    startPlaybackVerified();
+    return;
+  }
+
+  loadYouTubeApi();
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  ytPlayerHost.innerHTML = '<div id="ytAudioPlayer"></div>';
+
+  ytPlayer = new YT.Player("ytAudioPlayer", {
+    height: "1",
+    width: "1",
+    videoId: SONG_VIDEO_ID,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      loop: 1,
+      playlist: SONG_VIDEO_ID,
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1,
+      iv_load_policy: 3,
+      disablekb: 1,
+      fs: 0,
+    },
+    events: {
+      onReady: () => {
+        ytReady = true;
+        if (pendingUserPlay) {
+          startPlaybackVerified();
+        } else {
+          musicStatus.textContent = "La cancion iniciara al abrir el album.";
+        }
+      },
+      onStateChange: (event) => {
+        if (event.data === YT.PlayerState.PLAYING) {
+          ensureAudiblePlayback();
+        }
+      },
+      onError: () => {
+        musicStatus.textContent = "YouTube bloqueo la reproduccion. Presiona Activar cancion.";
+      },
+    },
+  });
+};
 
 function createSvg(name, attrs = {}) {
   const element = document.createElementNS(NS, name);
@@ -368,4 +462,5 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+loadYouTubeApi();
 buildTree();
